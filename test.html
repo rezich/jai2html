@@ -1,0 +1,113 @@
+<html><head><title>jai2html test</title>
+<style>
+    .Jai {
+        font-family: "Fira Code", monospace;
+        font-size: 8pt;
+        white-space: pre-wrap;
+        color: black;
+        background: floralwhite;
+        padding: 1em;
+    }
+    .Jai_IDENT { color: darkslateblue; }
+    .Jai_NUMBER { color: crimson; }
+    .Jai_STRING { color: darkorange;}
+    .Jai_PLUSEQUALS, .Jai_MINUSEQUALS, .Jai_TIMESEQUALS, .Jai_DIVEQUALS, .Jai_MODEQUALS,
+    .Jai_ISEQUAL, .Jai_ISNOTEQUAL, .Jai_LOGICAL_AND, .Jai_LOGICAL_OR, .Jai_LESSEQUALS, .Jai_GREATEREQUALS {
+        color: gray;
+    }
+    .Jai_KEYWORD {
+        color: cornflowerblue;
+    }
+    .Jai_COMMENT_LINE, .Jai_COMMENT_BLOCK {
+        color: olivedrab;
+    }
+
+</style></head><body>
+    <h1>Sample blog post</h1>
+    <p>I'm writing some stuff blah blah blah.</p>
+<div class="Jai">#<span class="Jai_IDENT">import</span> <span class="Jai_STRING">"Basic"</span>;
+#<span class="Jai_IDENT">import</span> <span class="Jai_STRING">"Jai_Lexer"</span>;
+#<span class="Jai_IDENT">import</span> <span class="Jai_STRING">"Clipboard"</span>; <span class="Jai_COMMENT_LINE">// os_clipboard_set_text</span>
+#<span class="Jai_IDENT">import</span> <span class="Jai_STRING">"String"</span>;
+
+<span class="Jai_IDENT">CSS_BLOCK_CLASS</span>  :: <span class="Jai_STRING">"Jai"</span>;
+<span class="Jai_IDENT">CSS_CLASS_PREFIX</span> :: <span class="Jai_STRING">"Jai_"</span>;
+
+<span class="Jai_IDENT">append_wrapped</span> :: (<span class="Jai_IDENT">builder</span>: *<span class="Jai_IDENT">String_Builder</span>, <span class="Jai_IDENT">token_type</span>: <span class="Jai_IDENT">Token_Type</span>, <span class="Jai_IDENT">s</span>: <span class="Jai_IDENT">string</span>) {
+    <span class="Jai_IDENT">class_name</span>: <span class="Jai_IDENT">string</span>;
+    <span class="Jai_KEYWORD">if</span> <span class="Jai_IDENT">token_type</span> <span class="Jai_GREATEREQUALS">&gt;=</span> .<span class="Jai_IDENT">__FIRST_KEYWORD</span> <span class="Jai_LOGICAL_AND">&amp;&amp;</span> <span class="Jai_IDENT">token_type</span> <span class="Jai_LESSEQUALS">&lt;=</span> .<span class="Jai_IDENT">__LAST_KEYWORD</span> <span class="Jai_KEYWORD">then</span> <span class="Jai_IDENT">class_name</span> = <span class="Jai_STRING">"KEYWORD"</span>;
+    <span class="Jai_KEYWORD">else</span> <span class="Jai_IDENT">class_name</span> = <span class="Jai_IDENT">sprint</span>(<span class="Jai_STRING">"%"</span>, <span class="Jai_IDENT">token_type</span>);
+    <span class="Jai_IDENT">append_wrapped</span>(<span class="Jai_IDENT">builder</span>, <span class="Jai_IDENT">class_name</span>, <span class="Jai_IDENT">s</span>);
+}
+<span class="Jai_IDENT">append_wrapped</span> :: (<span class="Jai_IDENT">builder</span>: *<span class="Jai_IDENT">String_Builder</span>, <span class="Jai_IDENT">class_name</span>: <span class="Jai_IDENT">string</span>, <span class="Jai_IDENT">s</span>: <span class="Jai_IDENT">string</span>) {
+    <span class="Jai_IDENT">append</span>(<span class="Jai_IDENT">builder</span>, <span class="Jai_STRING">"&lt;span class=\""</span>);
+    <span class="Jai_IDENT">append</span>(<span class="Jai_IDENT">builder</span>, <span class="Jai_IDENT">CSS_CLASS_PREFIX</span>);
+    <span class="Jai_IDENT">append</span>(<span class="Jai_IDENT">builder</span>, <span class="Jai_IDENT">class_name</span>);
+    <span class="Jai_IDENT">append</span>(<span class="Jai_IDENT">builder</span>, <span class="Jai_STRING">"\"&gt;"</span>);
+    <span class="Jai_IDENT">append</span>(<span class="Jai_IDENT">builder</span>, <span class="Jai_IDENT">tokenize</span>(<span class="Jai_IDENT">s</span>));
+    <span class="Jai_IDENT">append</span>(<span class="Jai_IDENT">builder</span>, <span class="Jai_STRING">"&lt;/span&gt;"</span>);
+}
+<span class="Jai_IDENT">tokenize</span> :: (<span class="Jai_IDENT">s</span>: <span class="Jai_IDENT">string</span>) <span class="Jai_RIGHT_ARROW">-&gt;</span> <span class="Jai_IDENT">string</span> {
+    <span class="Jai_IDENT">s2</span> := <span class="Jai_IDENT">replace</span>(<span class="Jai_IDENT">s</span>,  <span class="Jai_STRING">"&amp;"</span>, <span class="Jai_STRING">"&amp;amp;"</span>);
+    <span class="Jai_IDENT">s2</span>  = <span class="Jai_IDENT">replace</span>(<span class="Jai_IDENT">s2</span>, <span class="Jai_STRING">"&lt;"</span>, <span class="Jai_STRING">"&amp;lt;"</span>);
+    <span class="Jai_IDENT">s2</span>  = <span class="Jai_IDENT">replace</span>(<span class="Jai_IDENT">s2</span>, <span class="Jai_STRING">"&gt;"</span>, <span class="Jai_STRING">"&amp;gt;"</span>);
+    <span class="Jai_KEYWORD">return</span> <span class="Jai_IDENT">s2</span>;
+}
+
+<span class="Jai_IDENT">main</span> :: () {
+    <span class="Jai_IDENT">lexer</span>: <span class="Jai_IDENT">Lexer</span>;
+    <span class="Jai_IDENT">input</span> := <span class="Jai_IDENT">os_clipboard_get_text</span>();
+    <span class="Jai_IDENT">set_input_from_string</span>(*<span class="Jai_IDENT">lexer</span>, <span class="Jai_IDENT">copy_string</span>(<span class="Jai_IDENT">input</span>));
+
+    <span class="Jai_IDENT">last_line</span>    := <span class="Jai_NUMBER">1</span>;
+    <span class="Jai_IDENT">char_in_line</span> := <span class="Jai_NUMBER">0</span>;
+
+    <span class="Jai_IDENT">builder</span>: <span class="Jai_IDENT">String_Builder</span>;
+    <span class="Jai_IDENT">print</span>(*<span class="Jai_IDENT">builder</span>, <span class="Jai_STRING">"&lt;div class=\"%\"&gt;"</span>, <span class="Jai_IDENT">CSS_BLOCK_CLASS</span>);
+
+    <span class="Jai_KEYWORD">while</span> <span class="Jai_KEYWORD">true</span> {
+        <span class="Jai_IDENT">token</span> := <span class="Jai_IDENT">peek_next_token</span>(*<span class="Jai_IDENT">lexer</span>);
+        <span class="Jai_KEYWORD">if</span> <span class="Jai_IDENT">token</span>.<span class="Jai_IDENT">type</span> <span class="Jai_ISEQUAL">==</span> .<span class="Jai_IDENT">END_OF_INPUT</span> <span class="Jai_KEYWORD">break</span>;
+
+        <span class="Jai_IDENT">eat_token</span>(*<span class="Jai_IDENT">lexer</span>);
+
+        <span class="Jai_KEYWORD">while</span> <span class="Jai_IDENT">token</span>.<span class="Jai_IDENT">l0</span> &gt; <span class="Jai_IDENT">last_line</span> {
+            <span class="Jai_IDENT">found</span>:, <span class="Jai_IDENT">to_add</span>:, <span class="Jai_IDENT">input</span> = <span class="Jai_IDENT">split_from_left</span>(<span class="Jai_IDENT">input</span>, <span class="Jai_STRING">"\n"</span>);
+            <span class="Jai_IDENT">assert</span>(<span class="Jai_IDENT">found</span>);
+
+            <span class="Jai_IDENT">start_of_comment</span> := <span class="Jai_IDENT">find_index_from_left</span>(<span class="Jai_IDENT">to_add</span>, <span class="Jai_STRING">"//"</span>);
+            <span class="Jai_KEYWORD">if</span> <span class="Jai_IDENT">start_of_comment</span> <span class="Jai_ISNOTEQUAL">!=</span> -<span class="Jai_NUMBER">1</span> {
+                <span class="Jai_IDENT">append</span>(*<span class="Jai_IDENT">builder</span>, <span class="Jai_IDENT">slice</span>(<span class="Jai_IDENT">to_add</span>, <span class="Jai_NUMBER">0</span>, <span class="Jai_IDENT">start_of_comment</span>));
+                <span class="Jai_IDENT">to_add</span>.<span class="Jai_IDENT">data</span> <span class="Jai_PLUSEQUALS">+=</span> <span class="Jai_IDENT">start_of_comment</span>;
+                <span class="Jai_IDENT">to_add</span>.<span class="Jai_IDENT">count</span> <span class="Jai_MINUSEQUALS">-=</span> <span class="Jai_IDENT">start_of_comment</span>;
+                <span class="Jai_IDENT">to_add</span> = <span class="Jai_IDENT">trim_right</span>(<span class="Jai_IDENT">to_add</span>, <span class="Jai_STRING">"\r\n"</span>);
+                <span class="Jai_IDENT">append_wrapped</span>(*<span class="Jai_IDENT">builder</span>, <span class="Jai_STRING">"COMMENT_LINE"</span>, <span class="Jai_IDENT">to_add</span>);
+                <span class="Jai_IDENT">append</span>(*<span class="Jai_IDENT">builder</span>, <span class="Jai_STRING">"\n"</span>);
+            }
+            <span class="Jai_KEYWORD">else</span> {
+                <span class="Jai_IDENT">append</span>(*<span class="Jai_IDENT">builder</span>, <span class="Jai_IDENT">tokenize</span>(<span class="Jai_IDENT">to_add</span>));
+                <span class="Jai_IDENT">append</span>(*<span class="Jai_IDENT">builder</span>, <span class="Jai_STRING">"\n"</span>);
+            }
+            <span class="Jai_IDENT">last_line</span> <span class="Jai_PLUSEQUALS">+=</span> <span class="Jai_NUMBER">1</span>;
+            <span class="Jai_IDENT">char_in_line</span> = <span class="Jai_NUMBER">0</span>;
+        }
+        <span class="Jai_KEYWORD">if</span> <span class="Jai_IDENT">token</span>.<span class="Jai_IDENT">type</span> <span class="Jai_GREATEREQUALS">&gt;=</span> <span class="Jai_NUMBER">128</span> {
+            <span class="Jai_IDENT">before</span> := <span class="Jai_IDENT">slice</span>(<span class="Jai_IDENT">input</span>, <span class="Jai_NUMBER">0</span>, <span class="Jai_IDENT">token</span>.<span class="Jai_IDENT">c0</span>-<span class="Jai_NUMBER">1</span>-<span class="Jai_IDENT">char_in_line</span>);
+            <span class="Jai_IDENT">append</span>(*<span class="Jai_IDENT">builder</span>, <span class="Jai_IDENT">tokenize</span>(<span class="Jai_IDENT">before</span>));
+            <span class="Jai_IDENT">assert</span>(<span class="Jai_IDENT">token</span>.<span class="Jai_IDENT">c1</span> <span class="Jai_ISNOTEQUAL">!=</span> -<span class="Jai_NUMBER">1</span>);
+            <span class="Jai_IDENT">unwrapped</span> := <span class="Jai_IDENT">slice</span>(<span class="Jai_IDENT">input</span>, <span class="Jai_IDENT">token</span>.<span class="Jai_IDENT">c0</span>-<span class="Jai_NUMBER">1</span>-<span class="Jai_IDENT">char_in_line</span>, <span class="Jai_IDENT">token</span>.<span class="Jai_IDENT">c1</span>-<span class="Jai_IDENT">token</span>.<span class="Jai_IDENT">c0</span>);
+            <span class="Jai_IDENT">append_wrapped</span>(*<span class="Jai_IDENT">builder</span>, <span class="Jai_IDENT">token</span>.<span class="Jai_IDENT">type</span>, <span class="Jai_IDENT">unwrapped</span>);
+            <span class="Jai_IDENT">advanced</span> := <span class="Jai_IDENT">before</span>.<span class="Jai_IDENT">count</span> + <span class="Jai_IDENT">unwrapped</span>.<span class="Jai_IDENT">count</span>;
+            <span class="Jai_IDENT">input</span>.<span class="Jai_IDENT">data</span>   <span class="Jai_PLUSEQUALS">+=</span> <span class="Jai_IDENT">advanced</span>;
+            <span class="Jai_IDENT">input</span>.<span class="Jai_IDENT">count</span>  <span class="Jai_MINUSEQUALS">-=</span> <span class="Jai_IDENT">advanced</span>;
+            <span class="Jai_IDENT">char_in_line</span> <span class="Jai_PLUSEQUALS">+=</span> <span class="Jai_IDENT">advanced</span>;
+        }
+    }
+    <span class="Jai_IDENT">append</span>(*<span class="Jai_IDENT">builder</span>, <span class="Jai_IDENT">input</span>);
+    <span class="Jai_IDENT">append</span>(*<span class="Jai_IDENT">builder</span>, <span class="Jai_STRING">"\n&lt;/div&gt;"</span>);
+
+    <span class="Jai_IDENT">os_clipboard_set_text</span>(<span class="Jai_IDENT">builder_to_string</span>(*<span class="Jai_IDENT">builder</span>));
+}
+
+</div>
+</body>
